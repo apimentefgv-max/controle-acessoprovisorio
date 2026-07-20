@@ -1251,7 +1251,11 @@ async function graphFetch(pathOrUrl, method = 'GET', body = null) {
 
   const data = await res.json();
   if (!res.ok) {
-    const msg = (data.error && (data.error.message || data.error.code)) || ('HTTP ' + res.status);
+    var e = data.error || {};
+    var inner = (e.innerError && (e.innerError.message || e.innerError.code)) || '';
+    var msg = (e.message || e.code || ('HTTP ' + res.status));
+    if (inner && inner !== msg) msg += ' | ' + inner;
+    console.error('[ECLASS] Graph error:', JSON.stringify(data.error, null, 2));
     throw new Error(msg);
   }
   return data;
@@ -1311,6 +1315,7 @@ async function discoverFieldMap() {
 
     // Merge: discovered overrides defaults
     state.fieldMap = Object.assign({}, DEFAULT_FIELD_MAP, discovered);
+    console.log('[ECLASS] fieldMap final:', JSON.stringify(state.fieldMap));
   } catch (err) {
     console.warn('[ECLASS] Falha ao descobrir campos, usando nomes internos padrão.', err);
     // Keep DEFAULT_FIELD_MAP — already set in state.fieldMap
@@ -1344,13 +1349,14 @@ function recordToSpFields(record) {
   const m = state.fieldMap;
   const fields = {};
 
-  if (m.date)        fields[m.date]        = record.date ? (record.date + 'T12:00:00Z') : null;
+  if (m.date)        fields[m.date]        = record.date || null;
   if (m.cpf)         fields[m.cpf]         = record.cpf;
   if (m.name)        fields[m.name]        = record.name;
   if (m.course)      fields[m.course]      = record.course;
   if (m.turma)       fields[m.turma]       = record.turma;
+  // Chamado: enviar como string para compatibilidade com campos Texto ou Número
   if (m.ticket)      fields[m.ticket]      = (record.ticket !== '' && record.ticket != null)
-                                               ? Number(record.ticket) : null;
+                                               ? String(record.ticket) : null;
   if (m.responsible) fields[m.responsible] = record.responsible;
   if (m.status)      fields[m.status]      = record.status;
 
@@ -1376,6 +1382,7 @@ async function apiLoadRecords() {
 
 async function apiCreateRecord(record) {
   const fields = recordToSpFields(record);
+  console.log('[ECLASS] Creating item with fields:', JSON.stringify(fields));
   const res = await graphFetch(
     '/sites/' + state.siteId + '/lists/' + state.listId + '/items',
     'POST',
