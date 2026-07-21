@@ -1383,7 +1383,46 @@ async function apiLoadRecords() {
 async function apiCreateRecord(record) {
   var m = state.fieldMap;
 
-  // ── DIAGNÓSTICO: tenta enviar campos em grupos para isolar o problema ──────
+  // ── DIAGNÓSTICO FASE 2: testa campos individualmente para isolar o problema ──
+  var testFields = [
+    { label: 'Title (coluna padrão SP)', fields: { 'Title': record.name } },
+    { label: 'Nome', fields: { 'Title': record.name, 'Nome': record.name } },
+    { label: 'CPF', fields: { 'Title': record.name, 'CPF': record.cpf } },
+    { label: 'Curso', fields: { 'Title': record.name, 'Curso': record.course } },
+    { label: 'Turma', fields: { 'Title': record.name, 'Turma': record.turma } },
+    { label: 'Todos os texto + Title', fields: {
+        'Title': record.name,
+        'Nome': record.name,
+        'CPF': record.cpf,
+        'Curso': record.course,
+        'Turma': record.turma
+    }},
+  ];
+
+  for (var i = 0; i < testFields.length; i++) {
+    var t = testFields[i];
+    console.log('[ECLASS] Testando campo: ' + t.label + ' →', JSON.stringify(t.fields));
+    try {
+      var res = await graphFetch(
+        '/sites/' + state.siteId + '/lists/' + state.listId + '/items',
+        'POST',
+        { fields: t.fields }
+      );
+      console.log('[ECLASS] ✓ SUCESSO com: ' + t.label + ' | ID:', res.id);
+      // Deleta o item de teste para não poluir a lista
+      await graphFetch('/sites/' + state.siteId + '/lists/' + state.listId + '/items/' + res.id, 'DELETE');
+      console.log('[ECLASS] Item de teste removido. Campo-chave identificado:', t.label);
+      toast('[DIAGNÓSTICO] Campo-chave identificado: ' + t.label, 'success');
+      break;
+    } catch(e) {
+      console.warn('[ECLASS] ✗ FALHOU: ' + t.label + ' | ' + e.message);
+    }
+  }
+
+  // Após diagnóstico, tenta criação completa normal
+  var m = state.fieldMap;
+
+  // ── DIAGNÓSTICO original: tenta enviar campos em grupos para isolar o problema ──────
   // Grupo A: apenas campos de texto (sempre devem funcionar)
   var fieldsA = {};
   if (m.cpf)    fieldsA[m.cpf]    = record.cpf;
