@@ -1381,16 +1381,91 @@ async function apiLoadRecords() {
 }
 
 async function apiCreateRecord(record) {
-  const fields = recordToSpFields(record);
-  console.log('[ECLASS] Creating item with fields:', JSON.stringify(fields));
-  const res = await graphFetch(
-    '/sites/' + state.siteId + '/lists/' + state.listId + '/items',
-    'POST',
-    { fields: fields }
-  );
-  const newRec = Object.assign({}, record, { _spId: res.id });
-  state.records.push(newRec);
-  return newRec;
+  var m = state.fieldMap;
+
+  // ── DIAGNÓSTICO: tenta enviar campos em grupos para isolar o problema ──────
+  // Grupo A: apenas campos de texto (sempre devem funcionar)
+  var fieldsA = {};
+  if (m.cpf)    fieldsA[m.cpf]    = record.cpf;
+  if (m.name)   fieldsA[m.name]   = record.name;
+  if (m.course) fieldsA[m.course] = record.course;
+  if (m.turma)  fieldsA[m.turma]  = record.turma;
+
+  // Grupo B: texto + data
+  var fieldsB = Object.assign({}, fieldsA);
+  if (m.date) fieldsB[m.date] = record.date ? (record.date + 'T00:00:00Z') : null;
+
+  // Grupo C: texto + data + chamado
+  var fieldsC = Object.assign({}, fieldsB);
+  if (m.ticket) fieldsC[m.ticket] = (record.ticket !== '' && record.ticket != null) ? Number(record.ticket) : null;
+
+  // Grupo D: todos os campos (incluindo choices)
+  var fieldsD = Object.assign({}, fieldsC);
+  if (m.responsible) fieldsD[m.responsible] = record.responsible;
+  if (m.status)      fieldsD[m.status]      = record.status;
+
+  var payload = fieldsD;  // começa com todos os campos
+
+  console.log('[ECLASS] Tentando POST com todos os campos (D):', JSON.stringify(fieldsD));
+  try {
+    var res = await graphFetch(
+      '/sites/' + state.siteId + '/lists/' + state.listId + '/items',
+      'POST',
+      { fields: fieldsD }
+    );
+    console.log('[ECLASS] Sucesso com Grupo D (todos os campos)!');
+    var newRec = Object.assign({}, record, { _spId: res.id });
+    state.records.push(newRec);
+    return newRec;
+  } catch(errD) {
+    console.warn('[ECLASS] Grupo D falhou:', errD.message, '| Tentando sem choices (C)...');
+  }
+
+  try {
+    var res = await graphFetch(
+      '/sites/' + state.siteId + '/lists/' + state.listId + '/items',
+      'POST',
+      { fields: fieldsC }
+    );
+    console.log('[ECLASS] Sucesso com Grupo C (sem choices)! PROBLEMA NOS CAMPOS: Responsável ou Situação SIGA');
+    toast('[DIAGNÓSTICO] Gravou sem os campos de escolha. Verifique os valores de Responsável e Situação SIGA no SharePoint.', 'default');
+    var newRec = Object.assign({}, record, { _spId: res.id });
+    state.records.push(newRec);
+    return newRec;
+  } catch(errC) {
+    console.warn('[ECLASS] Grupo C falhou:', errC.message, '| Tentando sem chamado (B)...');
+  }
+
+  try {
+    var res = await graphFetch(
+      '/sites/' + state.siteId + '/lists/' + state.listId + '/items',
+      'POST',
+      { fields: fieldsB }
+    );
+    console.log('[ECLASS] Sucesso com Grupo B (sem chamado)! PROBLEMA NO CAMPO: Chamado');
+    toast('[DIAGNÓSTICO] Gravou sem Chamado. O campo Chamado tem problema de tipo.', 'default');
+    var newRec = Object.assign({}, record, { _spId: res.id });
+    state.records.push(newRec);
+    return newRec;
+  } catch(errB) {
+    console.warn('[ECLASS] Grupo B falhou:', errB.message, '| Tentando sem data (A)...');
+  }
+
+  try {
+    var res = await graphFetch(
+      '/sites/' + state.siteId + '/lists/' + state.listId + '/items',
+      'POST',
+      { fields: fieldsA }
+    );
+    console.log('[ECLASS] Sucesso com Grupo A (só texto)! PROBLEMA NO CAMPO: Data do Pedido');
+    toast('[DIAGNÓSTICO] Gravou sem a data. O campo Data do Pedido tem problema de formato.', 'default');
+    var newRec = Object.assign({}, record, { _spId: res.id });
+    state.records.push(newRec);
+    return newRec;
+  } catch(errA) {
+    console.error('[ECLASS] Grupo A também falhou (só campos de texto):', errA.message);
+    throw new Error('Todos os grupos falharam. Último erro: ' + errA.message);
+  }
 }
 
 async function apiUpdateRecord(cpf, updatedRecord) {
