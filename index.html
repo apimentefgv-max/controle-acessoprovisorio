@@ -1295,6 +1295,20 @@ async function discoverFieldMap() {
       '/sites/' + state.siteId + '/lists/' + state.listId + '/columns'
     );
 
+    // ── LOG COMPLETO DE TODAS AS COLUNAS ──────────────────────────────────────
+    console.log('[ECLASS] === TODAS AS COLUNAS DA LISTA ===');
+    colData.value.forEach(function(col) {
+      if (!col.readOnly && !col.hidden) {
+        console.log('[ECLASS] Col → name:"' + col.name + '" | displayName:"' + col.displayName + '" | type:"' + col.type + '" | readOnly:' + col.readOnly);
+      }
+    });
+    console.log('[ECLASS] === COLUNAS OCULTAS/SOMENTE LEITURA ===');
+    colData.value.forEach(function(col) {
+      if (col.readOnly || col.hidden) {
+        console.log('[ECLASS] (hidden/ro) name:"' + col.name + '" | displayName:"' + col.displayName + '"');
+      }
+    });
+
     // Map display names → app keys
     const displayToKey = {
       'Data do Pedido': 'date',
