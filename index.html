@@ -1363,6 +1363,9 @@ function recordToSpFields(record) {
   const m = state.fieldMap;
   const fields = {};
 
+  // "Title" é a coluna padrão obrigatória do SharePoint (displayName "Título").
+  // Deve ser enviada em todo novo item, independente da coluna "Nome".
+  fields['Title']    = record.name;
   if (m.date)        fields[m.date]        = record.date ? (record.date + 'T00:00:00Z') : null;
   if (m.cpf)         fields[m.cpf]         = record.cpf;
   if (m.name)        fields[m.name]        = record.name;
@@ -1395,133 +1398,19 @@ async function apiLoadRecords() {
 }
 
 async function apiCreateRecord(record) {
-  var m = state.fieldMap;
-
-  // ── DIAGNÓSTICO FASE 2: testa campos individualmente para isolar o problema ──
-  var testFields = [
-    { label: 'Title (coluna padrão SP)', fields: { 'Title': record.name } },
-    { label: 'Nome', fields: { 'Title': record.name, 'Nome': record.name } },
-    { label: 'CPF', fields: { 'Title': record.name, 'CPF': record.cpf } },
-    { label: 'Curso', fields: { 'Title': record.name, 'Curso': record.course } },
-    { label: 'Turma', fields: { 'Title': record.name, 'Turma': record.turma } },
-    { label: 'Todos os texto + Title', fields: {
-        'Title': record.name,
-        'Nome': record.name,
-        'CPF': record.cpf,
-        'Curso': record.course,
-        'Turma': record.turma
-    }},
-  ];
-
-  for (var i = 0; i < testFields.length; i++) {
-    var t = testFields[i];
-    console.log('[ECLASS] Testando campo: ' + t.label + ' →', JSON.stringify(t.fields));
-    try {
-      var res = await graphFetch(
-        '/sites/' + state.siteId + '/lists/' + state.listId + '/items',
-        'POST',
-        { fields: t.fields }
-      );
-      console.log('[ECLASS] ✓ SUCESSO com: ' + t.label + ' | ID:', res.id);
-      // Deleta o item de teste para não poluir a lista
-      await graphFetch('/sites/' + state.siteId + '/lists/' + state.listId + '/items/' + res.id, 'DELETE');
-      console.log('[ECLASS] Item de teste removido. Campo-chave identificado:', t.label);
-      toast('[DIAGNÓSTICO] Campo-chave identificado: ' + t.label, 'success');
-      break;
-    } catch(e) {
-      console.warn('[ECLASS] ✗ FALHOU: ' + t.label + ' | ' + e.message);
-    }
-  }
-
-  // Após diagnóstico, tenta criação completa normal
-  var m = state.fieldMap;
-
-  // ── DIAGNÓSTICO original: tenta enviar campos em grupos para isolar o problema ──────
-  // Grupo A: apenas campos de texto (sempre devem funcionar)
-  var fieldsA = {};
-  if (m.cpf)    fieldsA[m.cpf]    = record.cpf;
-  if (m.name)   fieldsA[m.name]   = record.name;
-  if (m.course) fieldsA[m.course] = record.course;
-  if (m.turma)  fieldsA[m.turma]  = record.turma;
-
-  // Grupo B: texto + data
-  var fieldsB = Object.assign({}, fieldsA);
-  if (m.date) fieldsB[m.date] = record.date ? (record.date + 'T00:00:00Z') : null;
-
-  // Grupo C: texto + data + chamado
-  var fieldsC = Object.assign({}, fieldsB);
-  if (m.ticket) fieldsC[m.ticket] = (record.ticket !== '' && record.ticket != null) ? Number(record.ticket) : null;
-
-  // Grupo D: todos os campos (incluindo choices)
-  var fieldsD = Object.assign({}, fieldsC);
-  if (m.responsible) fieldsD[m.responsible] = record.responsible;
-  if (m.status)      fieldsD[m.status]      = record.status;
-
-  var payload = fieldsD;  // começa com todos os campos
-
-  console.log('[ECLASS] Tentando POST com todos os campos (D):', JSON.stringify(fieldsD));
-  try {
-    var res = await graphFetch(
-      '/sites/' + state.siteId + '/lists/' + state.listId + '/items',
-      'POST',
-      { fields: fieldsD }
-    );
-    console.log('[ECLASS] Sucesso com Grupo D (todos os campos)!');
-    var newRec = Object.assign({}, record, { _spId: res.id });
-    state.records.push(newRec);
-    return newRec;
-  } catch(errD) {
-    console.warn('[ECLASS] Grupo D falhou:', errD.message, '| Tentando sem choices (C)...');
-  }
-
-  try {
-    var res = await graphFetch(
-      '/sites/' + state.siteId + '/lists/' + state.listId + '/items',
-      'POST',
-      { fields: fieldsC }
-    );
-    console.log('[ECLASS] Sucesso com Grupo C (sem choices)! PROBLEMA NOS CAMPOS: Responsável ou Situação SIGA');
-    toast('[DIAGNÓSTICO] Gravou sem os campos de escolha. Verifique os valores de Responsável e Situação SIGA no SharePoint.', 'default');
-    var newRec = Object.assign({}, record, { _spId: res.id });
-    state.records.push(newRec);
-    return newRec;
-  } catch(errC) {
-    console.warn('[ECLASS] Grupo C falhou:', errC.message, '| Tentando sem chamado (B)...');
-  }
-
-  try {
-    var res = await graphFetch(
-      '/sites/' + state.siteId + '/lists/' + state.listId + '/items',
-      'POST',
-      { fields: fieldsB }
-    );
-    console.log('[ECLASS] Sucesso com Grupo B (sem chamado)! PROBLEMA NO CAMPO: Chamado');
-    toast('[DIAGNÓSTICO] Gravou sem Chamado. O campo Chamado tem problema de tipo.', 'default');
-    var newRec = Object.assign({}, record, { _spId: res.id });
-    state.records.push(newRec);
-    return newRec;
-  } catch(errB) {
-    console.warn('[ECLASS] Grupo B falhou:', errB.message, '| Tentando sem data (A)...');
-  }
-
-  try {
-    var res = await graphFetch(
-      '/sites/' + state.siteId + '/lists/' + state.listId + '/items',
-      'POST',
-      { fields: fieldsA }
-    );
-    console.log('[ECLASS] Sucesso com Grupo A (só texto)! PROBLEMA NO CAMPO: Data do Pedido');
-    toast('[DIAGNÓSTICO] Gravou sem a data. O campo Data do Pedido tem problema de formato.', 'default');
-    var newRec = Object.assign({}, record, { _spId: res.id });
-    state.records.push(newRec);
-    return newRec;
-  } catch(errA) {
-    console.error('[ECLASS] Grupo A também falhou (só campos de texto):', errA.message);
-    throw new Error('Todos os grupos falharam. Último erro: ' + errA.message);
-  }
+  const fields = recordToSpFields(record);
+  console.log('[ECLASS] Creating item with fields:', JSON.stringify(fields));
+  const res = await graphFetch(
+    '/sites/' + state.siteId + '/lists/' + state.listId + '/items',
+    'POST',
+    { fields: fields }
+  );
+  const newRec = Object.assign({}, record, { _spId: res.id });
+  state.records.push(newRec);
+  return newRec;
 }
 
-async function apiUpdateRecord(cpf, updatedRecord) {
+async function apiUpdateRecordasync function apiUpdateRecord(cpf, updatedRecord) {
   const existing = state.records.find(function(r) { return r.cpf === cpf; });
   if (!existing) throw new Error('Registro não encontrado localmente.');
 
