@@ -1410,7 +1410,7 @@ async function apiCreateRecord(record) {
   return newRec;
 }
 
-async function apiUpdateRecordasync function apiUpdateRecord(cpf, updatedRecord) {
+async function apiUpdateRecord(cpf, updatedRecord) {
   const existing = state.records.find(function(r) { return r.cpf === cpf; });
   if (!existing) throw new Error('Registro não encontrado localmente.');
 
