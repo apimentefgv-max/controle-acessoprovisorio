@@ -1398,17 +1398,43 @@ async function apiLoadRecords() {
 }
 
 async function apiCreateRecord(record) {
-  const fields = recordToSpFields(record);
-  console.log('[ECLASS] Creating item with fields:', JSON.stringify(fields));
-  const res = await graphFetch(
-    '/sites/' + state.siteId + '/lists/' + state.listId + '/items',
-    'POST',
-    { fields: fields }
-  );
-  const newRec = Object.assign({}, record, { _spId: res.id });
+  var m = state.fieldMap;
+  var baseUrl = '/sites/' + state.siteId + '/lists/' + state.listId + '/items';
+
+  // ── DIAGNÓSTICO: testa cada campo individualmente ─────────────────────────
+  var candidates = [
+    { k: m.cpf,         v: record.cpf,                                   label: 'CPF'         },
+    { k: m.name,        v: record.name,                                   label: 'Nome'        },
+    { k: m.course,      v: record.course,                                 label: 'Curso'       },
+    { k: m.turma,       v: record.turma,                                  label: 'Turma'       },
+    { k: m.date,        v: record.date ? record.date+'T00:00:00Z' : null, label: 'Data'        },
+    { k: m.ticket,      v: record.ticket ? Number(record.ticket) : null,  label: 'Chamado'     },
+    { k: m.responsible, v: record.responsible,                            label: 'Responsavel' },
+    { k: m.status,      v: record.status,                                 label: 'Status'      },
+  ];
+
+  for (var i = 0; i < candidates.length; i++) {
+    var c = candidates[i];
+    var testPayload = { 'Title': record.name };
+    testPayload[c.k] = c.v;
+    try {
+      var tr = await graphFetch(baseUrl, 'POST', { fields: testPayload });
+      try { await graphFetch(baseUrl + '/' + tr.id, 'DELETE'); } catch(e){}
+      console.error('[ECLASS][DIAG] OK: ' + c.label + ' (key=' + c.k + ', val=' + JSON.stringify(c.v) + ')');
+    } catch(e) {
+      console.error('[ECLASS][DIAG] FALHOU: ' + c.label + ' (key=' + c.k + ', val=' + JSON.stringify(c.v) + ') | ' + e.message);
+    }
+  }
+
+  // Após diagnóstico tenta criação real com todos os campos
+  var finalFields = recordToSpFields(record);
+  console.error('[ECLASS][DIAG] Tentando criação real:', JSON.stringify(finalFields));
+  var res = await graphFetch(baseUrl, 'POST', { fields: finalFields });
+  var newRec = Object.assign({}, record, { _spId: res.id });
   state.records.push(newRec);
   return newRec;
 }
+
 
 async function apiUpdateRecord(cpf, updatedRecord) {
   const existing = state.records.find(function(r) { return r.cpf === cpf; });
