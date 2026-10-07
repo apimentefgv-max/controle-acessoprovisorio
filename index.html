@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAETklEQVR4nO1VzWtcVRw9v9+9byYzk4+aYEWKUOjKVhC0G60gYheldVE1k1awiLWkFhXqyupmzEZFBCst/XLRKq1oWvCjhbpQ0oVdCG66aP+AGkqT9CNmkklm5t3fcXFnktHGpFapCDkwMPPevfec3znnvQGWsIT/GLLoiuKgw+qLgnON38vX8LZOXn2xse7dxgfApTWC1UXi0snIe7IvLCyOXFzgP8T8BKWSYmDAAKBr16n1qYVuT0uDUUVQU+cnjdbGesgkhcxoWg09Kq4sgsAQsuaSyfS+FcM2WU1Ym8pJQWttzKa1ifK9yvq05Qr5pDrRnR0b/elWAcVB17AmKbx59hA6e7bDDEID1QE0SFoFXQZQBdJqgCYODIAZoU5AgmBFAKUxA5FUhMGgOQFMk6zixvA7k9Wxj2Q+8o7N7/WEVWu/1M7u9azNpI0sSIEAAmEA4eJemlIkADLLDEAhUAFAIHbBjPQZQqA689sr5Q83HAUpfs72IY+Bp9LsloMrw8oHT7tCx0OcLldFXAYgISAMAhGCMMC0kSCFdLOBCgQEQAaKxJ2gwXuSECmPbCvv3XwCpSEPkVRayfM7TjyqPfd/jXznA5iZqgHwUBWQ8SxGRhEGUhxEECemIJoT5wcVzckJ0HmDOh9uXN42s794HP2/JDiytg4APhorab5/cIN0L/9KkqST1UodIh4gZ4s6+/BJvBydkJYbjeUAINF50ugSAPAcG94+c7B4PA4byeNpxUFXWFF4VQpdHwP0CKEO1QRkNFJUhWTkU0BAodmsAzF3mf0eoSSCOCcU53h9+OXKgd5jTadba6fARUfnH0e+K4FZCoj+4emUpgeyyAuIgkZEJAzOCYwi14Z3Vg70HkP/4eTP5PH4GAHzu8/skVzH+6IKGlMRaExdFWh2QKIUWCDERWXNmBqdBwPUJzSry9S1vslPnv1mvsnnHBAhStTK3mc+4M3RjUjTUWQLHmTakNjSgdYiSJy61QEwUH1C2rSUx4qLkTciADAghtKQrxwqnpWRK0+wUv4ZbR0ZACF2ofEWaCqZ7RrmLhEGTRzMJvTmtd7Jfc99uxh56xERzQ1PvtSWe+SFfa592Q5aSlgICmgjgUYE6hrekyThvEMa6rh+ZdPUp1t/QP/hBEd21ufhXEAAAJSoGFADiNwbp3dp+7K98D6joVYlJIlemxlUhRDCAtR7hjCNkV+3VI6+eOZ2Jv9rAUDkGISiT0Lb66fWab7nM5crrGK9WgXohWaMbTWoTyytT+j4yMbJw1vP/x1yoNmBW3URfRJQGvIz+3vPy+UL69Ly+Flk81kABoCgGX02YUivZstjm+6EfAEHWjD374jc7u/fc+1dbyPUU/rEs1a9npm6+vT4/q0X7oT89lEqKUpUAGh/7bvnC2/9OJHfc268bfuJx+L9Ib/g/n9PSCS6Z8cXa5bt/PxhANGhu4pWwoYrdx8tkSxhCf97/A5tWU3g/WtywgAAAABJRU5ErkJggg==">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Controle de Acesso Provisório — ECLASS | FGV</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
 <!-- MSAL.js v3.7.0 — inline bundle (no CDN dependency, works from file://) -->
 <script>
 /*! @azure/msal-browser v3.7.0 2024-01-09 */
@@ -577,11 +577,18 @@ class Xo{constructor(e,r){this.cacheOutcome=he,this.cacheManager=r,this.apiId=e.
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.02em;
+    cursor: pointer;
+    user-select: none;
+    border: 1.5px solid transparent;
+    transition: box-shadow 0.12s, border-color 0.12s;
   }
 
   .pill-total { background: #EEF2FF; color: var(--navy); }
   .pill-pending { background: var(--orange-bg); color: var(--orange); }
   .pill-ok { background: var(--green-bg); color: var(--green); }
+
+  /* Indica visualmente qual pill está atuando como filtro ativo */
+  .pill.active { border-color: currentColor; box-shadow: 0 0 0 2px rgba(0,0,0,0.05); }
 
   /* ── TABLE ──────────────────────────────────── */
   .table-wrap {
@@ -591,7 +598,12 @@ class Xo{constructor(e,r){this.cacheOutcome=he,this.cacheManager=r,this.apiId=e.
     overflow: hidden;
   }
 
-  .table-scroll { overflow-x: auto; }
+  /* Rolagem vertical própria da tabela, com cabeçalho fixo (sticky) */
+  .table-scroll {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 62vh;
+  }
 
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
 
@@ -605,6 +617,11 @@ class Xo{constructor(e,r){this.cacheOutcome=he,this.cacheManager=r,this.apiId=e.
     letter-spacing: 0.04em;
     text-transform: uppercase;
     white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--navy);
+    color: var(--white);
   }
 
   thead th:first-child { padding-left: 20px; }
@@ -970,8 +987,8 @@ class Xo{constructor(e,r){this.cacheOutcome=he,this.cacheManager=r,this.apiId=e.
                placeholder="Buscar por Nome ou CPF…" oninput="renderTable()">
       </div>
       <div class="stats-pills">
-        <span class="pill pill-total" id="pillTotal">0 registros</span>
-        <span class="pill pill-pending" id="pillPending">0 Pendente</span>
+        <span class="pill pill-total" id="pillTotal" onclick="toggleStatusFilter(null)" title="Mostrar todos os registros">0 registros</span>
+        <span class="pill pill-pending" id="pillPending" onclick="toggleStatusFilter('Pendente')" title="Filtrar apenas pendentes">0 Pendente</span>
         <span class="pill pill-ok" id="pillOk">0 OK</span>
       </div>
     </div>
@@ -1204,6 +1221,17 @@ const state = {
   account:  null,
 };
 
+// Filtro de situação ativo na tabela (null = sem filtro, mostra todos)
+let statusFilter = null;
+
+// Mantém os registros sempre ordenados do mais recente para o mais antigo
+// (Data do Pedido), sem alterar a forma como a data é exibida.
+function sortRecordsByDateDesc() {
+  state.records.sort(function(a, b) {
+    return (b.date || '').localeCompare(a.date || '');
+  });
+}
+
 // ─── MSAL INSTANCE ───────────────────────────────────────────────────────────
 // Declared as `let` (not `const`) so a failed constructor does NOT leave the
 // variable in the Temporal Dead Zone, which would make every later reference
@@ -1381,6 +1409,7 @@ async function apiLoadRecords() {
   }
 
   state.records = items.map(spItemToRecord);
+  sortRecordsByDateDesc();
 }
 
 async function apiCreateRecord(record) {
@@ -1392,6 +1421,7 @@ async function apiCreateRecord(record) {
   );
   const newRec = Object.assign({}, record, { _spId: res.id });
   state.records.push(newRec);
+  sortRecordsByDateDesc();
   return newRec;
 }
 
@@ -1410,6 +1440,7 @@ async function apiUpdateRecord(cpf, updatedRecord) {
 
   const idx = state.records.findIndex(function(r) { return r.cpf === cpf; });
   state.records[idx] = Object.assign({}, updatedRecord, { _spId: existing._spId });
+  sortRecordsByDateDesc();
 }
 
 async function apiDeleteRecord(cpf) {
@@ -1562,12 +1593,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 function renderTable() {
   const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
-  const filtered = q
-    ? state.records.filter(function(r) {
-        return r.name.toLowerCase().includes(q) || r.cpf.toLowerCase().includes(q);
-      })
-    : state.records.slice();
 
+  // Contadores sempre refletem o total real de registros, independente do filtro aplicado
   const total   = state.records.length;
   const pending = state.records.filter(function(r) { return r.status === 'Pendente'; }).length;
   const ok      = state.records.filter(function(r) { return r.status === 'OK'; }).length;
@@ -1575,6 +1602,20 @@ function renderTable() {
   document.getElementById('pillTotal').textContent   = total + ' registro' + (total !== 1 ? 's' : '');
   document.getElementById('pillPending').textContent = pending + ' Pendente' + (pending !== 1 ? 's' : '');
   document.getElementById('pillOk').textContent      = ok + ' OK';
+
+  // Destaca visualmente o pill que está atuando como filtro ativo
+  document.getElementById('pillTotal').classList.toggle('active', statusFilter === null);
+  document.getElementById('pillPending').classList.toggle('active', statusFilter === 'Pendente');
+
+  let filtered = statusFilter
+    ? state.records.filter(function(r) { return r.status === statusFilter; })
+    : state.records.slice();
+
+  if (q) {
+    filtered = filtered.filter(function(r) {
+      return r.name.toLowerCase().includes(q) || r.cpf.toLowerCase().includes(q);
+    });
+  }
 
   const tbody = document.getElementById('tableBody');
 
@@ -1589,8 +1630,8 @@ function renderTable() {
       '<line x1="16" y1="17" x2="8" y2="17"/>' +
       '<polyline points="10 9 9 9 8 9"/>' +
       '</svg>' +
-      '<p>' + (q ? 'Nenhum resultado encontrado.' : 'Nenhum registro cadastrado.') + '</p>' +
-      '<small>' + (q ? 'Tente outros termos de busca.' : 'Clique em "Novo Registro" para começar.') + '</small>' +
+      '<p>' + (q ? 'Nenhum resultado encontrado.' : (statusFilter ? 'Nenhum registro ' + statusFilter.toLowerCase() + '.' : 'Nenhum registro cadastrado.')) + '</p>' +
+      '<small>' + (q ? 'Tente outros termos de busca.' : (statusFilter ? 'Clique em "' + total + ' registros" para ver todos.' : 'Clique em "Novo Registro" para começar.')) + '</small>' +
       '</div></td></tr>';
     return;
   }
@@ -1627,6 +1668,13 @@ function renderTable() {
       '</td>' +
     '</tr>';
   }).join('');
+}
+
+// Alterna o filtro de situação (ex.: 'Pendente'). Passar null sempre volta
+// para "Todos os registros". Clicar de novo na mesma pill também limpa o filtro.
+function toggleStatusFilter(status) {
+  statusFilter = (status === null) ? null : (statusFilter === status ? null : status);
+  renderTable();
 }
 
 function formatDate(iso) {
